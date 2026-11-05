@@ -11,13 +11,13 @@ You check the vacuum robot environment for CS440 Lab 5.
 
 ## Context
 
-Read only `context/environment.md` and source excerpts provided by the main agent. Ask the main agent if more information is needed.
+Read only `context/environment.md` and the environment-code excerpts provided by the main agent. Ask the main agent if more information is needed.
 
 ## Instructions
 
 1. Check the grid, starting position, obstacle, and reward cells.
 2. Separate confirmed facts from unknown rules.
-3. Check the agreed 80/10/10 movement, living reward, and terminal rules in the environment source.
+3. Check the agreed 80/10/10 movement, blocked moves, living reward, episode reset, and terminal rules against the supplied code. Identify unfinished TODOs.
 4. Review only. Do not edit files; return implementation suggestions to the main agent.
 
 ## Return to the Main Agent

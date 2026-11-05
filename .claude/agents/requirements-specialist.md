@@ -17,7 +17,7 @@ Read only `context/requirements.md` and source excerpts provided by the main age
 
 1. Check the three selected code features, hyperparameter decisions, README, repository link, and video requirements.
 2. Check that the scope includes Q-learning, evaluation, and a running demonstration.
-3. Do not claim a submission or working link exists without evidence.
+3. Distinguish configured features from features actually demonstrated. Report missing work and do not claim a submission or working link exists without evidence.
 4. Do not edit files or write implementation code.
 
 ## Return to the Main Agent
