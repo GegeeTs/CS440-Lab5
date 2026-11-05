@@ -1,6 +1,6 @@
 ---
 name: configuration-reviewer
-description: Use for reviewing selected Lab 5 configuration files for errors and contradictions.
+description: Use for reviewing selected Lab 5 feature configurations and learning-code excerpts for errors and contradictions.
 tools: Read
 model: inherit
 ---
@@ -18,9 +18,10 @@ Read only the files and source excerpts assigned by the main agent. Ask the main
 1. Check that specialist roles and tasks are clear.
 2. Check that each specialist receives only relevant context, not the full chat history.
 3. Compare claims with the supplied sources and identify unsupported assumptions.
-4. Check that the configuration supports Q-learning, the selected code features, and the documented hyperparameters.
-5. Do not describe file-reading instructions as enforced access restrictions.
-6. Do not edit files or claim tests were run without evidence.
+4. Check that the hook calls the checker, the skill uses real specialist calls, and the selected files agree with the documented hyperparameters.
+5. When given learning-code excerpts, check that Q-learning uses observed transitions, skips terminal bootstrapping, and keeps evaluation separate from training.
+6. Do not describe file-reading instructions as enforced access restrictions.
+7. Do not edit files or claim tests were run without evidence.
 
 ## Return to the Main Agent
 

@@ -24,7 +24,7 @@ The robot will use Q-learning without receiving explicit T and R tables.
 
 Movement is 80% in the chosen direction and 10% in each perpendicular direction. Both -1 and +10 end an episode.
 
-The current files contain the project context and subagent definitions. The Q-learning implementation, hooks, and skills still need to be added.
+The repository includes the three code feature configurations: hooks, skills, and subagents. The Q-learning implementation still needs to be completed.
 
 ## Project Structure
 
@@ -38,7 +38,14 @@ CS440-Lab5/
 ├── context/
 │   ├── environment.md
 │   └── requirements.md
+├── scripts/
+│   ├── check_project.py
+│   └── test_code_features.py
 └── .claude/
+    ├── settings.json
+    ├── skills/
+    │   └── check-vacuum/
+    │       └── SKILL.md
     └── agents/
         ├── environment-specialist.md
         ├── requirements-specialist.md
@@ -83,6 +90,22 @@ Defines the specialist that checks the assignment scope and submission requireme
 
 Defines the specialist that reviews selected configuration files for errors and contradictions.
 
+## Code Features
+
+### Hooks
+
+`.claude/settings.json` runs the Python checker after Claude uses Write, Edit, or NotebookEdit on a relevant project file. The checker reads the notebook without executing it, checks Python syntax and hyperparameter ranges, and reports unfinished TODOs. Errors ask Claude to correct the edit; the hook does not undo an edit or guarantee correct learning behavior. Manual edits in VS Code do not trigger this Claude hook.
+
+The hook uses `python` from the Claude Code environment's PATH. Check `python --version` before starting Claude. Its script path uses the project directory placeholder so paths containing spaces work.
+
+### Skills
+
+`.claude/skills/check-vacuum/SKILL.md` defines `/check-vacuum`. It runs the checker, requests focused reviews from the three specialists, and summarizes findings. It does not fill in the unfinished robot implementation.
+
+### Subagents
+
+The environment specialist checks the rules against the environment code, the requirements specialist checks Lab 5 deliverables, and the configuration reviewer checks the feature setup and selected learning-code excerpts. Each receives only the relevant files or excerpts and returns a short review. Their tools remain read-only.
+
 ## How the Strategy Works
 
 1. You give Claude Code a task.
@@ -105,12 +128,25 @@ Open `q_learning.ipynb` in VS Code and select that Python environment as the not
 
 The notebook is still a starter. Its Q-learning, evaluation, recharge lookup, and reward-handling TODOs must be completed before a full run.
 
+## Checks
+
+From the repository root:
+
+```sh
+python scripts/check_project.py
+python scripts/test_code_features.py
+```
+
+These checks use only Python's standard library. They do not train the robot or test its policy. TODOs are reported as unfinished work rather than syntax errors.
+
 ## Demonstration
 
-1. Open a terminal in the CS440-Lab5 directory and start Claude Code.
-2. Run `/agents` to check that the three specialists appear.
-3. Ask Claude to review the grid and assignment requirements using the specialists.
-4. Check the actual delegations and compare their responses with the source files.
+1. Open a terminal in the CS440-Lab5 directory and start `claude`. Install Claude Code first if the command is unavailable.
+2. Trust this project and review/approve its hook configuration when prompted. Start a fresh session after adding the feature files.
+3. Use `/agents` to confirm the three specialists and `/hooks` to inspect the PostToolUse hook.
+4. Run `/check-vacuum`. Inspect the actual specialist calls and compare their findings with the source files.
+5. Ask Claude to make a harmless comment edit in the notebook or checker. Confirm that the PostToolUse check runs after that edit. The hook reports checks to Claude; ask it to show the feedback if needed.
+6. Explain the hook, skill, and specialist decisions in the video, alongside the running Q-learning solution once implemented.
 
 ## Expected Behavior
 
@@ -130,4 +166,6 @@ The Isolate strategy separates tasks into focused contexts. This reduces irrelev
 
 Training and evaluation commands will be documented when the implementation is added.
 
-File boundaries are instructions, not enforced access restrictions. Responses and actual delegation should still be verified. A live Claude Code demonstration has not yet been tested.
+File boundaries are instructions, not enforced access restrictions. Responses and actual delegation should still be verified. The checker and hook can be tested independently with the commands above. Claude Code discovery, actual hook triggering, and specialist invocation still require a live Claude Code demonstration.
+
+Configuration references: [hooks](https://code.claude.com/docs/en/hooks), [skills](https://code.claude.com/docs/en/skills), and [subagents](https://code.claude.com/docs/en/sub-agents).

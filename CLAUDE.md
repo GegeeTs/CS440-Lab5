@@ -46,6 +46,14 @@ Implement and evaluate the Q-learning vacuum robot. Use subagents, hooks, and sk
 
 Do not expose the environment's transition probabilities or reward map to the learning agent. Report actual results without inventing performance claims.
 
+## Code Features
+
+- Hook: `.claude/settings.json` runs `scripts/check_project.py --hook` after Claude uses Write, Edit, or NotebookEdit.
+- Skill: `/check-vacuum` runs project checks and delegates focused reviews to the specialists.
+- Subagents: use the three definitions in `.claude/agents/` for separate, read-only reviews.
+
+The checker validates syntax, parameter ranges, and required files. It reports unfinished TODOs without running the notebook or proving the learned policy is correct.
+
 ## Specialists
 
 Specialist definitions are stored in `.claude/agents/`.
