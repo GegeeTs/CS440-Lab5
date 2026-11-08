@@ -24,7 +24,7 @@ The robot will use Q-learning without receiving explicit T and R tables.
 
 Movement is 80% in the chosen direction and 10% in each perpendicular direction. Both -1 and +10 end an episode.
 
-The repository includes the three code feature configurations: hooks, skills, and subagents. The Q-learning implementation still needs to be completed.
+The repository includes the three code feature configurations: hooks, skills, and subagents. The notebook implements tabular Q-learning with epsilon-greedy exploration, trains the robot, and evaluates the learned policy without exploration.
 
 ## Project Structure
 
@@ -33,6 +33,7 @@ CS440-Lab5/
 ├── CLAUDE.md
 ├── README.md
 ├── q_learning.ipynb
+├── results.json          (written by the notebook's recording cell)
 ├── requirements.txt
 ├── aima/
 ├── context/
@@ -40,7 +41,10 @@ CS440-Lab5/
 │   └── requirements.md
 ├── scripts/
 │   ├── check_project.py
-│   └── test_code_features.py
+│   ├── guard_tools.py
+│   ├── test_code_features.py
+│   ├── test_guard_tools.py
+│   └── test_q_learning.py
 └── .claude/
     ├── settings.json
     ├── skills/
@@ -56,7 +60,14 @@ CS440-Lab5/
 
 ### q_learning.ipynb
 
-Contains the trimmed Lab 3 environment and policy display, with TODOs for Q-learning, evaluation, and updated reward handling. It is not a working Lab 5 solution yet. The course AIMA package is included in `aima/`.
+Contains the environment simulator (`MDPEnvironment`), the Q-learning trainer, the evaluator, and the policy display. It ends with a recording cell that saves `results.json` and a Tests section that runs the test suites. The learner interacts with the simulator only through `reset` and `execute_action`; it does not read the grid, the slip probabilities, or the reward map. The course AIMA package is included in `aima/`.
+
+### scripts/
+
+- `check_project.py`: the checker used by the PostToolUse hook and `/check-vacuum`.
+- `guard_tools.py`: the PreToolUse guard hook (see Hooks).
+- `test_q_learning.py`: tests for the notebook's environment and Q-learning code.
+- `test_guard_tools.py` and `test_code_features.py`: tests for the guard hook, checker, hook, skill, and subagent files.
 
 ### aima/
 
@@ -96,7 +107,15 @@ Defines the specialist that reviews selected configuration files for errors and 
 
 `.claude/settings.json` runs the Python checker after Claude uses Write, Edit, or NotebookEdit on a relevant project file. The checker reads the notebook without executing it, checks Python syntax and hyperparameter ranges, and reports unfinished TODOs. Errors ask Claude to correct the edit; the hook does not undo an edit or guarantee correct learning behavior. Manual edits in VS Code do not trigger this Claude hook.
 
-The hook uses `python` from the Claude Code environment's PATH. Check `python --version` before starting Claude. Its script path uses the project directory placeholder so paths containing spaces work.
+A second, PreToolUse hook runs `scripts/guard_tools.py` before Claude uses Read, Write, Edit, NotebookEdit, Grep, Glob, Bash, or PowerShell. It:
+
+- blocks access to `.env` (`.env.example`, `.env.sample`, and `.env.template` are allowed),
+- blocks edits to anything that looks like the separate Lab 4 submission (paths matching `lab4`, `lab 4`, or `lab_4`), and
+- asks for confirmation before risky commands such as `git push`, `git reset --hard`, `git clean`, `rm -rf`, and `Remove-Item -Recurse`.
+
+The guard matches names in paths and command text. It cannot stop a directory-wide search from reaching `.env`, and the Lab 4 pattern is a guess at the folder name.
+
+The hooks use `python` from the Claude Code environment's PATH. Check `python --version` before starting Claude. Its script path uses the project directory placeholder so paths containing spaces work.
 
 ### Skills
 
@@ -126,24 +145,58 @@ python -m pip install -r requirements.txt
 
 Open `q_learning.ipynb` in VS Code and select that Python environment as the notebook kernel. The local `aima/` folder supplies `aima.agents`; `bootstrap.ipynb` is not needed for this import.
 
-The notebook is still a starter. Its Q-learning, evaluation, recharge lookup, and reward-handling TODOs must be completed before a full run.
+## Running Training and Evaluation
 
-## Checks
+Run the notebook from top to bottom (run it with the CS440-Lab5 directory as the working directory):
+
+1. The environment, parameters, and Q-learning cells define the code.
+2. The training cell trains for `TRAIN_EPISODES` episodes (seed `TRAIN_SEED`), prints the outcomes of the last 100 training episodes, prints the learned policy, and then evaluates it for `EVAL_EPISODES` episodes (seed `EVAL_SEED`) with no exploration and no Q-value updates.
+3. The recording cell writes the hyperparameters, training summaries, evaluation summary, and policy to `results.json`.
+4. The Tests section runs the test suites.
+
+Hyperparameters are set in the notebook's parameters cell: `ALPHA`, `GAMMA`, `EPSILON`, `EVALUATION_EPSILON`, `LIVING_REWARD`, the episode counts, `MAX_STEPS`, and the two seeds.
+
+## Results
+
+These numbers come from `results.json`, recorded on 2026-11-07 with the default hyperparameters (alpha 0.1, gamma 0.95, epsilon 0.2, living reward -0.04, 2000 training episodes, 500 evaluation episodes, max 100 steps per episode, training seed 0, evaluation seed 1).
+
+| Phase | Episodes | Goal | Trap | Timeout | Average reward | Average steps |
+|-------|----------|------|------|---------|----------------|---------------|
+| Training, first 100 | 100 | 88 | 12 | 0 | 8.22 | 12.4 |
+| Training, last 100 | 100 | 100 | 0 | 0 | 9.64 | 10.0 |
+| Evaluation (greedy) | 500 | 500 | 0 | 0 | 9.72 | 8.1 |
+
+Learned policy (every non-obstacle, non-terminal cell was visited during training):
+
+```text
+R R R D
+U X R D
+U U R D
+L TRAP U RECHARGE
+```
+
+These results come from one training seed and one evaluation seed, so they show that this configuration worked in this run, not how it performs on average. Checked against a model-based solution computed offline (verification only; the learner never sees it), the policy matches the optimal action in 7 of 13 cells, and the six cells that differ — (0,2), (1,2), (2,0), (2,1), (3,0), (3,2) — are mostly small gaps in rarely visited states, with the largest at (3,2). Its discounted value at the start is about 6.78 versus about 6.89 for the optimal policy. The saved `results.json` is overwritten each time the recording cell runs.
+
+## Checks and Tests
 
 From the repository root:
 
 ```sh
 python scripts/check_project.py
-python scripts/test_code_features.py
+python -m unittest scripts.test_q_learning scripts.test_guard_tools scripts.test_code_features
 ```
 
-These checks use only Python's standard library. They do not train the robot or test its policy. TODOs are reported as unfinished work rather than syntax errors.
+- `test_q_learning` checks the environment rules (rewards, terminal cells, obstacle, 80/10/10 slips), epsilon-greedy selection and tie-breaking, the Q-update (including no bootstrapping from terminal states), reproducibility with seeds, evaluation without Q-value changes, an end-to-end training check, and that the learner code does not reference simulator internals.
+- `test_guard_tools` checks the `.env`, Lab 4, and risky-command rules of the guard hook.
+- `test_code_features` checks the checker, the PostToolUse hook, and the skill and subagent files.
+
+The same suites run from the notebook's Tests section. The checker and the feature tests use only Python's standard library. `test_q_learning` also needs the packages in `requirements.txt`, because it loads the notebook's `aima` import. None of these tests proves the policy is optimal.
 
 ## Demonstration
 
 1. Open a terminal in the CS440-Lab5 directory and start `claude`. Install Claude Code first if the command is unavailable.
 2. Trust this project and review/approve its hook configuration when prompted. Start a fresh session after adding the feature files.
-3. Use `/agents` to confirm the three specialists and `/hooks` to inspect the PostToolUse hook.
+3. Use `/agents` to confirm the three specialists and `/hooks` to inspect the PreToolUse guard and PostToolUse checker hooks.
 4. Run `/check-vacuum`. Inspect the actual specialist calls and compare their findings with the source files.
 5. Ask Claude to make a harmless comment edit in the notebook or checker. Confirm that the PostToolUse check runs after that edit. The hook reports checks to Claude; ask it to show the feedback if needed.
 6. Explain the hook, skill, and specialist decisions in the video, alongside the running Q-learning solution once implemented.
@@ -164,7 +217,7 @@ The Isolate strategy separates tasks into focused contexts. This reduces irrelev
 
 ## Limitations
 
-Training and evaluation commands will be documented when the implementation is added.
+Results are from a single seed (see Results). The hyperparameters are the proposed starting values from `context/requirements.md`; this README does not claim they are optimal, and no other settings have been compared yet.
 
 File boundaries are instructions, not enforced access restrictions. Responses and actual delegation should still be verified. The checker and hook can be tested independently with the commands above. Claude Code discovery, actual hook triggering, and specialist invocation still require a live Claude Code demonstration.
 
