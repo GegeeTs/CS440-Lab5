@@ -42,14 +42,17 @@ CS440-Lab5/
 ├── scripts/
 │   ├── check_project.py
 │   ├── guard_tools.py
+│   ├── verify_results.py
+│   ├── sweep_hyperparameters.py
 │   ├── test_code_features.py
 │   ├── test_guard_tools.py
 │   └── test_q_learning.py
 └── .claude/
     ├── settings.json
     ├── skills/
-    │   └── check-vacuum/
-    │       └── SKILL.md
+    │   ├── check-vacuum/SKILL.md
+    │   ├── verify-results/SKILL.md
+    │   └── compare-hyperparameters/SKILL.md
     └── agents/
         ├── environment-specialist.md
         ├── requirements-specialist.md
@@ -120,6 +123,11 @@ The hooks use `python` from the Claude Code environment's PATH. Check `python --
 ### Skills
 
 `.claude/skills/check-vacuum/SKILL.md` defines `/check-vacuum`. It runs the checker, requests focused reviews from the three specialists, and summarizes findings. It does not fill in the unfinished robot implementation.
+
+Two more skills, both manual-only like `/check-vacuum`:
+
+- `/verify-results` runs `scripts/verify_results.py`, which checks that `results.json` is internally consistent and compares the learned policy with a value-iteration solution (verification only; the learner never sees it). It then checks the README's Results claims against the output.
+- `/compare-hyperparameters` runs `scripts/sweep_hyperparameters.py`, which trains the notebook's Q-learner over a small grid of alpha, epsilon, and gamma values and several seeds, and summarizes the trade-offs. Pass options such as `--alpha 0.05 0.1 --seeds 10`. It never modifies the notebook or `results.json`.
 
 ### Subagents
 
