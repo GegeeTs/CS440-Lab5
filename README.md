@@ -6,7 +6,7 @@ Fall 2026
 
 ## Overview
 
-This repository builds on Isolate to solve the vacuum robot problem with Q-learning. Lab 5 will use subagents, hooks, and skills in Claude Code.
+This repository builds on Isolate to solve the vacuum robot problem with Q-learning. Lab 5 includes subagents, hooks, and skills for Claude Code.
 
 A main agent splits the work and gives each part to a specialist. Each specialist receives only the context needed for its task and returns a short summary.
 
@@ -122,7 +122,7 @@ The hooks use `python` from the Claude Code environment's PATH. Check `python --
 
 ### Skills
 
-`.claude/skills/check-vacuum/SKILL.md` defines `/check-vacuum`. It runs the checker, requests focused reviews from the three specialists, and summarizes findings. It does not fill in the unfinished robot implementation.
+`.claude/skills/check-vacuum/SKILL.md` defines `/check-vacuum`. It runs the checker, requests focused reviews from the three specialists, and summarizes findings. Its report covers the checks, specialist findings, and remaining work.
 
 Two more skills, both manual-only like `/check-vacuum`:
 
@@ -207,7 +207,7 @@ The same suites run from the notebook's Tests section. The checker and the featu
 3. Use `/agents` to confirm the three specialists and `/hooks` to inspect the PreToolUse guard and PostToolUse checker hooks.
 4. Run `/check-vacuum`. Inspect the actual specialist calls and compare their findings with the source files.
 5. Ask Claude to make a harmless comment edit in the notebook or checker. Confirm that the PostToolUse check runs after that edit. The hook reports checks to Claude; ask it to show the feedback if needed.
-6. Explain the hook, skill, and specialist decisions in the video, alongside the running Q-learning solution once implemented.
+6. Explain the hook, skill, and specialist decisions in the video, alongside the running Q-learning solution.
 
 ## Expected Behavior
 

@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-11-07T19:49:49",
+  "recorded_at": "2026-11-08T18:59:35",
   "hyperparameters": {
     "LIVING_REWARD": -0.04,
     "GAMMA": 0.95,
@@ -17,7 +17,7 @@
     "goal": 88,
     "trap": 12,
     "timeout": 0,
-    "average_reward": 8.2228,
+    "average_reward": 8.222799999999996,
     "average_steps": 12.43
   },
   "training_last_100": {
@@ -25,7 +25,7 @@
     "goal": 100,
     "trap": 0,
     "timeout": 0,
-    "average_reward": 9.64,
+    "average_reward": 9.639999999999997,
     "average_steps": 10.0
   },
   "evaluation": {
@@ -34,7 +34,7 @@
     "trap": 0,
     "timeout": 0,
     "success_rate": 1.0,
-    "average_reward": 9.71752,
+    "average_reward": 9.717520000000048,
     "average_steps": 8.062
   },
   "policy": {
